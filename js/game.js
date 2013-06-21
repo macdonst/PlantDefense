@@ -13,13 +13,13 @@ bgImage.onload = function () {
 };
 bgImage.src = "images/background.png";
 
-// Hero image
-var heroReady = false;
-var heroImage = new Image();
-heroImage.onload = function () {
-	heroReady = true;
+// Flower image
+var flowerReady = false;
+var flowerImage = new Image();
+flowerImage.onload = function () {
+	flowerReady = true;
 };
-heroImage.src = "images/hero.png";
+flowerImage.src = "images/flower.png";
 
 // Monster image
 var monsterReady = false;
@@ -30,24 +30,18 @@ monsterImage.onload = function () {
 monsterImage.src = "images/crow.png";
 
 // Game objects
+var flowers = [
+	{x:95,y:415},
+	{x:250,y:415},
+	{x:413,y:415}
+];
 var hero = {
 	speed: 256 // movement in pixels per second
 };
 var monster = {
 	speed: 128
 };
-var monstersCaught = 0;
-
-// Handle keyboard controls
-var keysDown = {};
-
-addEventListener("keydown", function (e) {
-	keysDown[e.keyCode] = true;
-}, false);
-
-addEventListener("keyup", function (e) {
-	delete keysDown[e.keyCode];
-}, false);
+var crowsScared = 0;
 
 canvas.addEventListener('click', function(evt) {
     var mousePos = getMousePos(canvas, evt);
@@ -60,7 +54,7 @@ canvas.addEventListener('click', function(evt) {
 		&& mousePos.y <= (monster.y + 32)
 		&& monster.y <= (mousePos.y + 32)
 	) {
-		++monstersCaught;
+		++crowsScared;
 		reset();
 	}
 }, false);
@@ -77,32 +71,19 @@ var writeMessage = function(canvas, message) {
         console.log(message);
       };
 
+// Setup initial flowers
+var drawFlowers = function() {
+};
+
 // Reset the game when the player catches a monster
 var reset = function () {
-	hero.x = canvas.width / 2;
-	hero.y = canvas.height / 2;
-
 	// Throw the monster somewhere on the screen randomly
 	monster.x = 32 + (Math.random() * (canvas.width - 64));
-	//monster.y = 32 + (Math.random() * (canvas.height - 64));
 	monster.y = 0;
 };
 
 // Update game objects
 var update = function (modifier) {
-	if (38 in keysDown) { // Player holding up
-		hero.y -= hero.speed * modifier;
-	}
-	if (40 in keysDown) { // Player holding down
-		hero.y += hero.speed * modifier;
-	}
-	if (37 in keysDown) { // Player holding left
-		hero.x -= hero.speed * modifier;
-	}
-	if (39 in keysDown) { // Player holding right
-		hero.x += hero.speed * modifier;
-	}
-
 	// move monster
 	monster.y += monster.speed * modifier;
 
@@ -113,7 +94,7 @@ var update = function (modifier) {
 		&& hero.y <= (monster.y + 32)
 		&& monster.y <= (hero.y + 32)
 	) {
-		++monstersCaught;
+		++crowsScared;
 		reset();
 	}
 
@@ -128,8 +109,10 @@ var render = function () {
 		ctx.drawImage(bgImage, 0, 0);
 	}
 
-	if (heroReady) {
-		ctx.drawImage(heroImage, hero.x, hero.y);
+	if (flowerReady) {
+		ctx.drawImage(flowerImage, flowers[0].x, flowers[0].y);
+		ctx.drawImage(flowerImage, flowers[1].x, flowers[1].y);
+		ctx.drawImage(flowerImage, flowers[2].x, flowers[2].y);
 	}
 
 	if (monsterReady) {
@@ -141,9 +124,10 @@ var render = function () {
 	ctx.font = "24px Helvetica";
 	ctx.textAlign = "left";
 	ctx.textBaseline = "top";
-	ctx.fillText("Birds Scared Away: " + monstersCaught, 32, 32);
+	ctx.fillText("Birds Scared Away: " + crowsScared, 32, 32);
 };
 
+var notSetup = true;
 // The main game loop
 var main = function () {
 	var now = Date.now();
