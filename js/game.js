@@ -27,13 +27,15 @@ var monsterImage = new Image();
 monsterImage.onload = function () {
 	monsterReady = true;
 };
-monsterImage.src = "images/monster.png";
+monsterImage.src = "images/crow.png";
 
 // Game objects
 var hero = {
 	speed: 256 // movement in pixels per second
 };
-var monster = {};
+var monster = {
+	speed: 128
+};
 var monstersCaught = 0;
 
 // Handle keyboard controls
@@ -47,6 +49,34 @@ addEventListener("keyup", function (e) {
 	delete keysDown[e.keyCode];
 }, false);
 
+canvas.addEventListener('click', function(evt) {
+    var mousePos = getMousePos(canvas, evt);
+    var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+    writeMessage(canvas, message);
+    	// Are they touching?
+	if (
+		mousePos.x <= (monster.x + 32)
+		&& monster.x <= (mousePos.x + 32)
+		&& mousePos.y <= (monster.y + 32)
+		&& monster.y <= (mousePos.y + 32)
+	) {
+		++monstersCaught;
+		reset();
+	}
+}, false);
+
+var getMousePos = function(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: evt.clientX - rect.left,
+          y: evt.clientY - rect.top
+        };
+      };
+
+var writeMessage = function(canvas, message) {
+        console.log(message);
+      };
+
 // Reset the game when the player catches a monster
 var reset = function () {
 	hero.x = canvas.width / 2;
@@ -54,7 +84,8 @@ var reset = function () {
 
 	// Throw the monster somewhere on the screen randomly
 	monster.x = 32 + (Math.random() * (canvas.width - 64));
-	monster.y = 32 + (Math.random() * (canvas.height - 64));
+	//monster.y = 32 + (Math.random() * (canvas.height - 64));
+	monster.y = 0;
 };
 
 // Update game objects
@@ -72,6 +103,9 @@ var update = function (modifier) {
 		hero.x += hero.speed * modifier;
 	}
 
+	// move monster
+	monster.y += monster.speed * modifier;
+
 	// Are they touching?
 	if (
 		hero.x <= (monster.x + 32)
@@ -80,6 +114,10 @@ var update = function (modifier) {
 		&& monster.y <= (hero.y + 32)
 	) {
 		++monstersCaught;
+		reset();
+	}
+
+	if (monster.y >= 480) {
 		reset();
 	}
 };
