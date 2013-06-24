@@ -88,14 +88,21 @@ var update = function (modifier) {
 	monster.y += monster.speed * modifier;
 
 	// Are they touching?
-	if (
-		hero.x <= (monster.x + 32)
-		&& monster.x <= (hero.x + 32)
-		&& hero.y <= (monster.y + 32)
-		&& monster.y <= (hero.y + 32)
-	) {
-		++crowsScared;
-		reset();
+	for (var i=0; i<flowers.length; i++) {
+		if (
+			flowers[i].x <= (monster.x + 32)
+			&& monster.x <= (flowers[i].x + 32)
+			&& flowers[i].y <= (monster.y + 32)
+			&& monster.y <= (flowers[i].y + 32)
+		) {
+			flowers.splice(i, 1);
+			if (flowers.length == 0) {
+				clearInterval(gameLoop);
+				console.log("calling game over");
+				setInterval(gameOver, 5000);
+				return;
+			}
+		}
 	}
 
 	if (monster.y >= 480) {
@@ -110,9 +117,9 @@ var render = function () {
 	}
 
 	if (flowerReady) {
-		ctx.drawImage(flowerImage, flowers[0].x, flowers[0].y);
-		ctx.drawImage(flowerImage, flowers[1].x, flowers[1].y);
-		ctx.drawImage(flowerImage, flowers[2].x, flowers[2].y);
+		for (var i=0; i<flowers.length; i++) {
+			ctx.drawImage(flowerImage, flowers[i].x, flowers[i].y);
+		}
 	}
 
 	if (monsterReady) {
@@ -124,6 +131,23 @@ var render = function () {
 	ctx.font = "24px Helvetica";
 	ctx.textAlign = "left";
 	ctx.textBaseline = "top";
+	ctx.fillText("Birds Scared Away: " + crowsScared, 32, 32);
+};
+
+var gameOver = function() {
+	console.log("in game over");
+	if (bgReady) {
+		console.log("draw background");
+		ctx.drawImage(bgImage, 0, 0);
+	}
+
+	// Score
+	console.log("show score");
+	ctx.fillStyle = "rgb(250, 250, 250)";
+	ctx.font = "24px Helvetica";
+	ctx.textAlign = "left";
+	ctx.textBaseline = "top";
+	ctx.fillText("Game Over!!!", 32, 0);
 	ctx.fillText("Birds Scared Away: " + crowsScared, 32, 32);
 };
 
@@ -142,4 +166,4 @@ var main = function () {
 // Let's play this game!
 reset();
 var then = Date.now();
-setInterval(main, 1); // Execute as fast as possible
+var gameLoop = setInterval(main, 1); // Execute as fast as possible
