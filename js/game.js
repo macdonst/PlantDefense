@@ -131,6 +131,7 @@ var render = function () {
 	ctx.textBaseline = "top";
 	if (gameOver) {
 		ctx.fillText("Game Over!!!", 32, 0);
+		clearInterval(gameLoop);
 	}
 	ctx.fillText("Birds Scared Away: " + crowsScared, 32, 32);
 };
@@ -140,7 +141,6 @@ var notSetup = true;
 var main = function () {
 	var now = Date.now();
 	var delta = now - then;
-
 	update(delta / 1000);
 	render();
 
