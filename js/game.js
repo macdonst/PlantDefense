@@ -97,9 +97,7 @@ var update = function (modifier) {
 		) {
 			flowers.splice(i, 1);
 			if (flowers.length == 0) {
-				clearInterval(gameLoop);
-				console.log("calling game over");
-				setInterval(gameOver, 5000);
+				gameOver = true;
 				return;
 			}
 		}
@@ -116,13 +114,13 @@ var render = function () {
 		ctx.drawImage(bgImage, 0, 0);
 	}
 
-	if (flowerReady) {
+	if (flowerReady && !gameOver) {
 		for (var i=0; i<flowers.length; i++) {
 			ctx.drawImage(flowerImage, flowers[i].x, flowers[i].y);
 		}
 	}
 
-	if (monsterReady) {
+	if (monsterReady && !gameOver) {
 		ctx.drawImage(monsterImage, monster.x, monster.y);
 	}
 
@@ -131,23 +129,9 @@ var render = function () {
 	ctx.font = "24px Helvetica";
 	ctx.textAlign = "left";
 	ctx.textBaseline = "top";
-	ctx.fillText("Birds Scared Away: " + crowsScared, 32, 32);
-};
-
-var gameOver = function() {
-	console.log("in game over");
-	if (bgReady) {
-		console.log("draw background");
-		ctx.drawImage(bgImage, 0, 0);
+	if (gameOver) {
+		ctx.fillText("Game Over!!!", 32, 0);
 	}
-
-	// Score
-	console.log("show score");
-	ctx.fillStyle = "rgb(250, 250, 250)";
-	ctx.font = "24px Helvetica";
-	ctx.textAlign = "left";
-	ctx.textBaseline = "top";
-	ctx.fillText("Game Over!!!", 32, 0);
 	ctx.fillText("Birds Scared Away: " + crowsScared, 32, 32);
 };
 
@@ -165,5 +149,6 @@ var main = function () {
 
 // Let's play this game!
 reset();
+var gameOver = false;
 var then = Date.now();
 var gameLoop = setInterval(main, 1); // Execute as fast as possible
